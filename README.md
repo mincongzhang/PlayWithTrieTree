@@ -5,6 +5,7 @@ BasicTrieTree: Get rid of pointer (Trie * trie_tree), try to have a normal TrieT
 
 A better example:  
 http://songlee24.github.io/2015/05/09/prefix-tree/
+Including other useful stuff, like multithreading, etc
 
 Extra:  
 AC自动机?Aho-Corasick automation  
