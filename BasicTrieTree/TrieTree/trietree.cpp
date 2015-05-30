@@ -6,7 +6,8 @@
 using namespace std;
 
 class Node;
-typedef std::map<char,Node*> node_map;
+typedef Node* NodePtr;
+typedef std::map<char,NodePtr> node_map;
 typedef node_map::value_type node_value;
 
 
@@ -27,11 +28,11 @@ public:
 	void setWordMarker() { m_marker = true; }
 	bool wordMarker() { return m_marker; }
 	node_map children() { return m_children; }
-	Node* findChild(const char c);
-	Node* appendChild(char c);
+	NodePtr findChild(const char c);
+	NodePtr appendChild(char c);
 };
 
-Node* Node::findChild(const char c)
+NodePtr Node::findChild(const char c)
 {
 	node_map::const_iterator iter = m_children.find(c);
 	if(iter != m_children.end()){
@@ -41,9 +42,9 @@ Node* Node::findChild(const char c)
 	return NULL;
 }
 
-Node* Node::appendChild(const char c)
+NodePtr Node::appendChild(const char c)
 {
-	Node* child = new Node();
+	NodePtr child = new Node();
 	child->setContent(c);
 	m_children.insert(node_value(c,child)); 
 	return child;
@@ -53,18 +54,20 @@ Node* Node::appendChild(const char c)
 
 class Trie {
 private:
-	Node* root;
-	std::vector<std::string> m_all_words;
+	NodePtr m_root;
+	std::vector<std::string> m_all_words;//TODO: when would you clear this vector?
+	std::string m_tmp_string;
+	void saveWord(const NodePtr current_node);//TODO: use a functor here to avoid m_all_words?
 
 public:
-	Trie(){ root = new Node(); };
-	~Trie(){ delete this; }; //TODO: not sure if I should recursively delete every node?
+	Trie(){ m_root = new Node(); };
+	~Trie(){ /*delete this;*/ }; //TODO: not sure if I should recursively delete every node?
 
 	void addWord(std::string s);
-	void deleteWord(std::string s);
-	bool searchWord(std::string s);
-	void traverse(Node* root,std::string & tmp_string);
-	void getAllWords(); //traverse tree
+	void deleteWord(const std::string s){/*TODO*/};
+	bool searchWord(const std::string s);
+	void traverse(const NodePtr m_root,void (Trie::*handleNode)(const NodePtr current_node));
+	void getAllWords(); 
 	void printAllWords();
 };
 
@@ -75,63 +78,73 @@ void Trie::printAllWords(){
 		std::cout<< m_all_words.at(i) <<std::endl;
 }
 
+void Trie::saveWord(const NodePtr current_node){
+		m_tmp_string += current_node->content();
+		if( current_node->wordMarker() ){
+			m_all_words.push_back(m_tmp_string);
+			//if get end, clear buffer
+			if(current_node->children().empty())
+				m_tmp_string.clear();
+		}
+}
+
 //这里用函数指针, 传递delete和visit?
-void Trie::traverse(Node* current_node,std::string & tmp_string){
+
+void Trie::traverse(NodePtr current_node,void (Trie::*handleNode)(const NodePtr current_node)){
 	if(!current_node) return;
 
 	node_map current_children = current_node->children();
 
 	node_map::const_iterator iter;
 	for(iter = current_children.begin();iter!=current_children.end();++iter){
+		(this->*handleNode)(iter->second);	
+		//member function pointer
+		//If function instance is no in static:
+		//(1)have to use class name when declare the function void (Trie::*handleNode)(const NodePtr current_node)
+		//(2)have to use this-> when using this function pointer 
+		//(3)have to use reference when use the function (&Trie::saveWord)
 
-		//visit
-		tmp_string += (iter->second)->content();
-		if( (iter->second)->wordMarker() ){
-			m_all_words.push_back(tmp_string);
-			//if get end, clear buffer
-			if((iter->second)->children().empty())
-				tmp_string.clear();
-		}
-		//visit end
-
-		traverse(iter->second,tmp_string);
+		//总结：如果函数实例没有定义成static形式,那么： 
+        //(1)那么函数指针的声明得加类空间名字；  
+        //(2)在函数实例使用者内部得用this->来引用到函数指针 
+        //(3)在函数实例使用者的参数处得使用 CTestFun:来引用函数实例。 
+		//awesome approach:  http://mmdev.iteye.com/blog/1568412
+		traverse(iter->second,handleNode);
 	}
 
 }
 
 void Trie::getAllWords()
 {
-	Node* current = root;
-	std::string tmp_string;
-	traverse(root,tmp_string);
-
+	NodePtr current = m_root;
+	traverse(m_root,&Trie::saveWord);
 }
 
 
 void Trie::addWord(std::string s)
 {
-	Node* current = root;
+	NodePtr current = m_root;
 
-	for ( int i = 0; i < s.length(); ++i )
+	for (unsigned int i = 0; i < s.length(); ++i )
 	{        
-		Node* child = current->findChild(s[i]);
+		NodePtr child = current->findChild(s[i]);
 		if ( child != NULL )
 			current = child;
 		else
 			current = current->appendChild(s[i]);
 	}
 
-	if(current != root)
+	if(current != m_root)
 		current->setWordMarker();
 }
 
-bool Trie::searchWord(std::string s)
+bool Trie::searchWord(const std::string s)
 {
-	Node* current = root;
+	NodePtr current = m_root;
 
 	if ( current != NULL )
 	{
-		for ( int i = 0; i < s.length(); i++ )
+		for (unsigned int i = 0; i < s.length(); i++ )
 		{
 			current = current->findChild(s[i]);
 			if ( current == NULL )	return false;
