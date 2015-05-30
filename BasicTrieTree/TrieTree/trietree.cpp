@@ -2,6 +2,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -12,7 +13,6 @@ typedef node_map::value_type node_value;
 
 
 /////////////////////Node///////////////////////////////
-
 class Node {
 private:
 	char m_content;
@@ -57,19 +57,29 @@ private:
 	NodePtr m_root;
 	std::vector<std::string> m_all_words;//TODO: when would you clear this vector?
 	std::string m_tmp_string;
-	void saveWord(const NodePtr current_node);//TODO: use a functor here to avoid m_all_words?
+	void deleteNode(NodePtr & current_node);
+	void saveWord(NodePtr & current_node);//TODO: use a functor here to avoid m_all_words?
 
 public:
 	Trie(){ m_root = new Node(); };
-	~Trie(){ /*delete this;*/ }; //TODO: not sure if I should recursively delete every node?
+	~Trie(); //TODO: not sure if I should recursively delete every node?
 
 	void addWord(std::string s);
 	void deleteWord(const std::string s){/*TODO*/};
 	bool searchWord(const std::string s);
-	void traverse(const NodePtr m_root,void (Trie::*handleNode)(const NodePtr current_node));
+	void preOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
+	void postOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
 	void getAllWords(); 
 	void printAllWords();
 };
+
+Trie::~Trie(){
+	postOrderTraverse(m_root,&Trie::deleteNode);
+}
+
+void Trie::deleteNode(NodePtr & current_node){
+	delete current_node;
+}
 
 void Trie::printAllWords(){
 	getAllWords();
@@ -78,46 +88,45 @@ void Trie::printAllWords(){
 		std::cout<< m_all_words.at(i) <<std::endl;
 }
 
-void Trie::saveWord(const NodePtr current_node){
-		m_tmp_string += current_node->content();
-		if( current_node->wordMarker() ){
-			m_all_words.push_back(m_tmp_string);
-			//if get end, clear buffer
-			if(current_node->children().empty())
-				m_tmp_string.clear();
-		}
-}
-
-//这里用函数指针, 传递delete和visit?
-
-void Trie::traverse(NodePtr current_node,void (Trie::*handleNode)(const NodePtr current_node)){
-	if(!current_node) return;
-
-	node_map current_children = current_node->children();
-
-	node_map::const_iterator iter;
-	for(iter = current_children.begin();iter!=current_children.end();++iter){
-		(this->*handleNode)(iter->second);	
-		//member function pointer
-		//If function instance is no in static:
-		//(1)have to use class name when declare the function void (Trie::*handleNode)(const NodePtr current_node)
-		//(2)have to use this-> when using this function pointer 
-		//(3)have to use reference when use the function (&Trie::saveWord)
-
-		//总结：如果函数实例没有定义成static形式,那么： 
-        //(1)那么函数指针的声明得加类空间名字；  
-        //(2)在函数实例使用者内部得用this->来引用到函数指针 
-        //(3)在函数实例使用者的参数处得使用 CTestFun:来引用函数实例。 
-		//awesome approach:  http://mmdev.iteye.com/blog/1568412
-		traverse(iter->second,handleNode);
+void Trie::saveWord(NodePtr & current_node){
+	//only suitable for preorder
+	m_tmp_string += current_node->content();
+	if( current_node->wordMarker() ){
+		m_all_words.push_back(m_tmp_string);
+		//if get end, clear buffer
+		if(current_node->children().empty())
+			m_tmp_string.clear();
 	}
 
 }
 
+void Trie::preOrderTraverse(NodePtr current_node,void (Trie::*handleNode)(NodePtr & current_node)){
+	if(!current_node) return;
+
+	node_map current_children = current_node->children();
+
+	node_map::iterator iter;
+	for(iter = current_children.begin();iter!=current_children.end();++iter){
+			(this->*handleNode)(iter->second);
+			preOrderTraverse(iter->second,handleNode);
+	}
+}
+
+void Trie::postOrderTraverse(NodePtr current_node,void (Trie::*handleNode)(NodePtr & current_node)){
+	if(!current_node) return;
+
+	node_map current_children = current_node->children();
+
+	node_map::iterator iter;
+	for(iter = current_children.begin();iter!=current_children.end();++iter){
+			postOrderTraverse(iter->second,handleNode);
+			(this->*handleNode)(iter->second);
+	}
+}
+
 void Trie::getAllWords()
 {
-	NodePtr current = m_root;
-	traverse(m_root,&Trie::saveWord);
+	preOrderTraverse(m_root,&Trie::saveWord);
 }
 
 
@@ -126,7 +135,7 @@ void Trie::addWord(std::string s)
 	NodePtr current = m_root;
 
 	for (unsigned int i = 0; i < s.length(); ++i )
-	{        
+	{   
 		NodePtr child = current->findChild(s[i]);
 		if ( child != NULL )
 			current = child;
