@@ -25,7 +25,7 @@ Use DP theory to implement an advanced Trie Tree, to keep memory as low as possi
 Already exists? http://dongxicheng.org/structure/trietree/
 
 
-function pointer(函数指针)  
+### function pointer(函数指针)  
 member function pointer  
 If function instance is no in static:  
 (1)have to use class name when declare the function void (Trie::*handleNode)(const NodePtr current_node)  
