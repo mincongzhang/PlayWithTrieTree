@@ -1,8 +1,5 @@
 # playWithTrieTree
 
-TODO:  
-BasicTrieTree: Get rid of pointer (Trie * trie_tree), try to have a normal TrieTree class (Trie trie_tree)
-
 A better example:  
 http://songlee24.github.io/2015/05/09/prefix-tree/
 Including other useful stuff, like multithreading, etc
