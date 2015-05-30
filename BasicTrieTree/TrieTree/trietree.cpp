@@ -70,33 +70,32 @@ public:
 
 void Trie::printAllWords(){
 	getAllWords();
-	 	
+
 	for(unsigned int i=0;i<m_all_words.size();++i)
-	  std::cout<< m_all_words.at(i) <<std::endl;
+		std::cout<< m_all_words.at(i) <<std::endl;
 }
 
-
+//这里用函数指针, 传递delete和visit?
 void Trie::traverse(Node* current_node,std::string & tmp_string){
-	 if(!current_node) return;
+	if(!current_node) return;
 
-	 node_map current_children = current_node->children();
+	node_map current_children = current_node->children();
 
-	 node_map::const_iterator iter;
-	 for(iter = current_children.begin();iter!=current_children.end();++iter){
+	node_map::const_iterator iter;
+	for(iter = current_children.begin();iter!=current_children.end();++iter){
 
-		 tmp_string += iter->first;
-		 //iter->second is the Node*
-		 if( (iter->second)->wordMarker() ){
-			 
-			 m_all_words.push_back(tmp_string);
-			 
-			 //if get end, clear buffer
-			 if((iter->second)->children().empty())
+		//visit
+		tmp_string += (iter->second)->content();
+		if( (iter->second)->wordMarker() ){
+			m_all_words.push_back(tmp_string);
+			//if get end, clear buffer
+			if((iter->second)->children().empty())
 				tmp_string.clear();
-		 }
+		}
+		//visit end
 
-		 traverse(iter->second,tmp_string);
-	 }
+		traverse(iter->second,tmp_string);
+	}
 
 }
 
@@ -148,36 +147,36 @@ bool Trie::searchWord(std::string s)
 // Test program
 int main()
 {
-	Trie* trie = new Trie();
-	trie->addWord("Hello");
-	trie->addWord("Helloo");
-	trie->addWord("Balloon");
-	trie->addWord("Ball");
-	trie->addWord("");
+	Trie trie;
+	trie.addWord("Hello");
+	trie.addWord("Helloo");
+	trie.addWord("Balloon");
+	trie.addWord("Ball");
+	trie.addWord("");
 
-	if ( trie->searchWord("Hell") )
+	if ( trie.searchWord("Hell") )
 		cout << "Found Hell" << endl;
 
-	if ( trie->searchWord("Hello") )
+	if ( trie.searchWord("Hello") )
 		cout << "Found Hello" << endl;
 
-	if ( trie->searchWord("Helloo") )
+	if ( trie.searchWord("Helloo") )
 		cout << "Found Helloo" << endl;
 
-	if ( trie->searchWord("Ball") )
+	if ( trie.searchWord("Ball") )
 		cout << "Found Ball" << endl;
 
-	if ( trie->searchWord("Balloon") )
+	if ( trie.searchWord("Balloon") )
 		cout << "Found Balloon" << endl;
 
-	if(trie->searchWord(""))
+	if(trie.searchWord(""))
 		cout<<"Found ''"<<endl;
 	else
 		cout<<"Failed to insert ''"<<endl;
 
 
 	cout<<"All words:"<<endl;
-	trie->printAllWords();
+	trie.printAllWords();
 
 	system("pause");
 }
