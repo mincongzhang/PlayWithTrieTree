@@ -66,14 +66,14 @@ public:
 
 	void addWord(std::string s);
 	void deleteWord(const std::string s){/*TODO*/};
-	
-	//TODO:deleteWord
-        //simple delete:change wordMarker to false
-        //difficult delete: search current node's children,
-        //if has children, change current wordMarker to false,
-        //if has no children, delete current node
 
-	
+	//TODO:deleteWord
+	//simple delete:change wordMarker to false
+	//difficult delete: search current node's children,
+	//if has children, change current wordMarker to false,
+	//if has no children, delete current node
+
+
 	bool searchWord(const std::string s);
 	void preOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
 	void postOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
@@ -91,25 +91,25 @@ void Trie::deleteNode(NodePtr & current_node){
 }
 
 void Trie::printAllWords(){
-  getAllWords();
+	getAllWords();
 
-  cout<<"All words acquired. Printing:"<<endl;
-  for(unsigned int i=0;i<m_all_words.size();++i)
-    std::cout<<"["<< m_all_words.at(i) <<"]"<<std::endl;
+	cout<<"All words acquired. Printing:"<<endl;
+	for(unsigned int i=0;i<m_all_words.size();++i)
+		std::cout<<"["<< m_all_words.at(i) <<"]"<<std::endl;
 }
 
 void Trie::saveWord(NodePtr & current_node){
-  //only suitable for preorder
-  m_tmp_string += current_node->content();
+	//only suitable for preorder
+	m_tmp_string += current_node->content();
 
-  cout<<"Constructing word:["<<m_tmp_string<<"]"<<endl;
-  if( current_node->wordMarker() ){
-    cout<<"Word construction complete :["<<m_tmp_string<<"]"<<endl;
-    m_all_words.push_back(m_tmp_string);
-    //if get end, clear buffer
-    if(current_node->children().empty())
-      m_tmp_string.clear();
-  }
+	cout<<"Constructing word:["<<m_tmp_string<<"]"<<endl;
+	if( current_node->wordMarker() ){
+		cout<<"Word construction complete :["<<m_tmp_string<<"]"<<endl;
+		m_all_words.push_back(m_tmp_string);
+		//if get end, clear buffer
+		if(current_node->children().empty())
+			m_tmp_string.clear();
+	}
 
 }
 
@@ -121,8 +121,8 @@ void Trie::preOrderTraverse(NodePtr current_node,void (Trie::*handleNode)(NodePt
 
 	node_map::iterator iter;
 	for(iter = current_children.begin();iter!=current_children.end();++iter){
-			(this->*handleNode)(iter->second);
-			preOrderTraverse(iter->second,handleNode);
+		(this->*handleNode)(iter->second);
+		preOrderTraverse(iter->second,handleNode);
 	}
 }
 
@@ -133,8 +133,8 @@ void Trie::postOrderTraverse(NodePtr current_node,void (Trie::*handleNode)(NodeP
 
 	node_map::iterator iter;
 	for(iter = current_children.begin();iter!=current_children.end();++iter){
-			postOrderTraverse(iter->second,handleNode);
-			(this->*handleNode)(iter->second);
+		postOrderTraverse(iter->second,handleNode);
+		(this->*handleNode)(iter->second);
 	}
 }
 
@@ -183,36 +183,37 @@ bool Trie::searchWord(const std::string s)
 // Test program
 int main()
 {
-	Trie trie;
-	trie.addWord("Hello");
-	trie.addWord("Helloo");
-	trie.addWord("Balloon");
-	trie.addWord("Ball");
-	trie.addWord("");
 
-	if ( trie.searchWord("Hell") )
-		cout << "Found Hell" << endl;
+	{
+		Trie trie;
+		trie.addWord("Hello");
+		trie.addWord("Helloo");
+		trie.addWord("Balloon");
+		trie.addWord("Ball");
+		trie.addWord("");
 
-	if ( trie.searchWord("Hello") )
-		cout << "Found Hello" << endl;
+		if ( trie.searchWord("Hell") )
+			cout << "Found Hell" << endl;
 
-	if ( trie.searchWord("Helloo") )
-		cout << "Found Helloo" << endl;
+		if ( trie.searchWord("Hello") )
+			cout << "Found Hello" << endl;
 
-	if ( trie.searchWord("Ball") )
-		cout << "Found Ball" << endl;
+		if ( trie.searchWord("Helloo") )
+			cout << "Found Helloo" << endl;
 
-	if ( trie.searchWord("Balloon") )
-		cout << "Found Balloon" << endl;
+		if ( trie.searchWord("Ball") )
+			cout << "Found Ball" << endl;
 
-	if(trie.searchWord(""))
-		cout<<"Found ''"<<endl;
-	else
-		cout<<"Failed to insert ''"<<endl;
+		if ( trie.searchWord("Balloon") )
+			cout << "Found Balloon" << endl;
 
+		if(trie.searchWord(""))
+			cout<<"Found ''"<<endl;
+		else
+			cout<<"Failed to insert ''"<<endl;
 
-	cout<<"Printing all words..."<<endl;
-	trie.printAllWords();
-
+		cout<<"Printing all words..."<<endl;
+		trie.printAllWords();
+	}
 	system("pause");
 }
