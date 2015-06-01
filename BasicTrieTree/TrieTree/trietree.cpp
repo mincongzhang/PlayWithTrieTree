@@ -66,6 +66,14 @@ public:
 
 	void addWord(std::string s);
 	void deleteWord(const std::string s){/*TODO*/};
+	
+	//TODO:deleteWord
+        //simple delete:change wordMarker to false
+        //difficult delete: search current node's children,
+        //if has children, change current wordMarker to false,
+        //if has no children, delete current node
+
+	
 	bool searchWord(const std::string s);
 	void preOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
 	void postOrderTraverse(const NodePtr m_root,void (Trie::*handleNode)(NodePtr & current_node));
