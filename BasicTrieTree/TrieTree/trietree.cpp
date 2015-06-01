@@ -83,12 +83,12 @@ void Trie::deleteNode(NodePtr & current_node){
 }
 
 void Trie::printAllWords(){
-	getAllWords();
+  getAllWords();
 
-	for(unsigned int i=0;i<m_all_words.size();++i)
-		std::cout<< m_all_words.at(i) <<std::endl;
+  cout<<"All words acquired. Printing:"<<endl;
+  for(unsigned int i=0;i<m_all_words.size();++i)
+    std::cout<<"["<< m_all_words.at(i) <<"]"<<std::endl;
 }
-
 
 void Trie::saveWord(NodePtr & current_node){
   //only suitable for preorder
