@@ -78,6 +78,7 @@ Trie::~Trie(){
 }
 
 void Trie::deleteNode(NodePtr & current_node){
+	cout<<"deleting ["<<current_node->content()<<"]"<<endl;
 	delete current_node;
 }
 
@@ -88,17 +89,22 @@ void Trie::printAllWords(){
 		std::cout<< m_all_words.at(i) <<std::endl;
 }
 
+
 void Trie::saveWord(NodePtr & current_node){
-	//only suitable for preorder
-	m_tmp_string += current_node->content();
-	if( current_node->wordMarker() ){
-		m_all_words.push_back(m_tmp_string);
-		//if get end, clear buffer
-		if(current_node->children().empty())
-			m_tmp_string.clear();
-	}
+  //only suitable for preorder
+  m_tmp_string += current_node->content();
+
+  cout<<"Constructing word:["<<m_tmp_string<<"]"<<endl;
+  if( current_node->wordMarker() ){
+    cout<<"Word construction complete :["<<m_tmp_string<<"]"<<endl;
+    m_all_words.push_back(m_tmp_string);
+    //if get end, clear buffer
+    if(current_node->children().empty())
+      m_tmp_string.clear();
+  }
 
 }
+
 
 void Trie::preOrderTraverse(NodePtr current_node,void (Trie::*handleNode)(NodePtr & current_node)){
 	if(!current_node) return;
@@ -197,7 +203,7 @@ int main()
 		cout<<"Failed to insert ''"<<endl;
 
 
-	cout<<"All words:"<<endl;
+	cout<<"Printing all words..."<<endl;
 	trie.printAllWords();
 
 	system("pause");
